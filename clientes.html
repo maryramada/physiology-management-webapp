@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioBalance Studio</title>
+    <link rel="stylesheet" href="assets/css/estilos.css">
+    <link rel="stylesheet" href="assets/css/bootstrap/bootstrap.min.css">
+</head>
+<body>
+    <script src="assets/css/bootstrap/bootstrap.bundle.min.js"></script>
+    <!-- cabeçalho -->
+    <header class="container-cabecalho">
+        <a href="index.html">
+            <img src="assets/imagens/logo_empresa.png" alt="Logo da Empresa" title="BioBalance Studio" class="logo">
+        </a>
+        <h3> BioBalance Studio</h3>
+    </header>
+    <!-- navegação -->
+    <nav class="container-navegacao">
+        <a href="quemsomos.html">Quem Somos</a>
+        <a href="servicos.html">Nossa Equipa</a>
+        <a href="contactos.html">Contactos</a>
+        <a href="clientes.html">Login</a>
+    </nav>
+    <div class="container mt-5">
+        <h2 class="titulo-area-restrita">Área Restritiva</h2>
+        <br>
+        <!-- Área para exibir mensagens de erro -->
+        <div id="error-message" class="alert alert-danger" style="display: none;"></div>
+        <!-- Formulário com a ação direcionada para avaliação.php -->
+        <form id="loginForm" action="login.php" method="post">
+            <div class="form-group">
+                <label for="username">Utilizador:</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Senha:</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="modulo">Módulo</label>
+                <select name="modulo" id="modulo" class="form-control" required>
+                    <option value="" selected disabled>Selecione</option>
+                    <option value="administração">Administração</option>
+                    <option value="atendimento">Atendimento</option>
+                    <option value="Avaliação">Avaliação</option>
+                    <option value="Acompanhamento">Acompanhamento</option>
+                    <option value="Material Equipamento">Material Equipamento</option>
+                </select>
+            </div>
+            <br>
+            <button type="submit" class="btn btn-primary">Entrar</button>
+        </form>
+        <br>
+    </div>
+    <!-- Rodape -->
+    <footer class="container-rodape">
+        BioBalance Studio &copy; 2024 | &reg; Todos os direitos reservados.
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault(); 
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const modulo = document.getElementById('modulo').value;
+
+            // Validação básica do nome de usuário (fisiologista)
+            const namePattern = /^[A-Za-zÀ-ÿ]+\s[A-Za-zÀ-ÿ]+$/;
+
+            if (!namePattern.test(username)) {
+                alert('O nome de utilizador deve conter o primeiro nome e apelido e não pode conter números ou caracteres especiais.');
+                return;
+            }
+
+            if (modulo !== 'Avaliação') {
+                alert('Utilizador não encontrado neste módulo');
+                return;
+            }
+
+            // Envio dos dados para login.php via POST
+            fetch('login.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password, modulo })
+            }).then(response => response.text()) // Change to text() to debug
+              .then(text => {
+                  console.log('Server response:', text); // Log the raw response text
+                  try {
+                      const data = JSON.parse(text);
+                      if (data.success) {
+                          // Armazenar o ID do usuário e nome no localStorage
+                          localStorage.setItem('userId', data.userId);
+                          localStorage.setItem('username', data.username);
+                          window.location.href = 'avaliação.php';
+                      } else {
+                          document.getElementById('error-message').textContent = data.message;
+                          document.getElementById('error-message').style.display = 'block';
+                      }
+                  } catch (error) {
+                      console.error('Erro ao analisar JSON:', error);
+                      console.error('Resposta do servidor:', text); // Add this line
+                      alert('Erro ao processar a resposta do servidor.');
+                  }
+              }).catch(error => console.error('Erro:', error));
+        });
+
+        // Verifica se há uma mensagem de erro na URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const erro = urlParams.get('erro');
+        if (erro) {
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.textContent = 'Utilizador não encontrado';
+            errorMessage.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
+

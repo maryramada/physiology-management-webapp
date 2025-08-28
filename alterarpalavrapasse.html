@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alterar Palavra-passe - BioBalance Studio</title>
+    <link rel="stylesheet" href="assets/css/estilos.css">
+    <link rel="stylesheet" href="assets/css/bootstrap/bootstrap.min.css">
+</head>
+<body>
+    <header class="container-cabecalho">
+        <a href="index.html">
+            <img src="assets/imagens/logo_empresa.png" alt="Logo da Empresa" title="BioBalance Studio" class="logo">
+        </a>
+        <h3>BioBalance Studio</h3>
+    </header>
+    <nav class="container-navegacao">
+        <a href="quemsomos.html">Quem Somos</a>
+        <a href="servicos.html">Nossa Equipa</a>
+        <a href="contactos.html">Contactos</a>
+        <div class="dropdown">
+            <button class="dropdown-toggle" type="button">
+                <img src="assets/imagens/utilizador.png" alt="Foto do Utilizador" id="user-photo">
+                <span id="username-display"></span>
+            </button>
+            <div class="dropdown-content">
+                <a href="alterarpalavrapasse.html"><i class="fa-solid fa-key me-2"></i> Alterar Palavra-passe</a>
+                <a href="clientes.html" onclick="logout()"><i class="fa-solid fa-right-from-bracket me-2"></i> Sair</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-5 container-alterar-senha">
+        <h2>Alterar Palavra-Passe</h2>
+        <br>
+        <form id="changePasswordForm">
+            <input type="hidden" id="userId" name="userId" value="">
+            <div class="form-group">
+                <label for="currentPassword">Palavra-Passe Atual:</label>
+                <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+            </div>
+            <div class="form-group">
+                <label for="newPassword">Nova Palavra-Passe:</label>
+                <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirmar Nova Palavra-Passe:</label>
+                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Alterar Palavra-Passe</button>
+            <div class="alert alert-danger" id="error-message-incorrect-password" role="alert" style="display: none;">
+                Palavra-passe atual incorreta.
+            </div>
+            <div class="alert alert-danger" id="error-message-mismatch" role="alert" style="display: none;">
+                As novas palavras-passe não coincidem.
+            </div>
+            <div class="alert alert-success" id="success-message" role="alert" style="display: none;">
+                Palavra-passe alterada com sucesso.
+            </div>
+        </form>
+    </div>
+    <footer class="container-rodape">
+        BioBalance Studio &copy; 2024 | &reg; Todos os direitos reservados.
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.getElementById('changePasswordForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            // Verificar se as novas senhas coincidem
+            if (newPassword !== confirmPassword) {
+                document.getElementById('error-message-mismatch').style.display = 'block';
+                document.getElementById('error-message-incorrect-password').style.display = 'none';
+                document.getElementById('success-message').style.display = 'none';
+                return;
+            }
+
+            // Enviar dados para update.password.php via POST
+            fetch('update.password.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ currentPassword, newPassword })
+            }).then(response => response.json())
+            .then(data => {
+                console.log(data); // Debug: Verificar o que está sendo recebido
+                if (data.success) {
+                    document.getElementById('success-message').style.display = 'block';
+                    document.getElementById('error-message-incorrect-password').style.display = 'none';
+                    document.getElementById('error-message-mismatch').style.display = 'none';
+                    window.location.href = 'avaliação.php'; // Redirecionar após sucesso
+                } else {
+                    if (data.error === 'incorrect_password') {
+                        document.getElementById('error-message-incorrect-password').style.display = 'block';
+                        document.getElementById('error-message-mismatch').style.display = 'none';
+                        document.getElementById('success-message').style.display = 'none';
+                    } else {
+                        alert('Erro ao alterar a palavra-passe.');
+                    }
+                }
+            }).catch(error => {
+                console.error("Erro: ", error);
+                alert('Erro ao processar a solicitação.');
+            });
+        });
+    </script>
+</body>
+</html>
